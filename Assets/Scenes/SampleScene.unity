@@ -1197,7 +1197,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   suspensionRestDistance: 1
   suspensionMaxDistance: 2
-  springStrength: 3000
+  springStrength: 800
   springDamper: 300
   frontTyreGripCurve:
     serializedVersion: 2
