@@ -15,6 +15,7 @@ namespace Car
         public bool brakeWheel;
         public bool steerWheel;
         public bool frontWheel;
+        public bool leftWheel;
     
         void Start()
         {
@@ -32,7 +33,7 @@ namespace Car
             if (!steerWheel) return;
             transform.rotation = _carRigidbody.transform.rotation * Quaternion.Euler(
                 0, 
-                90 + Mathf.LerpAngle(-40, 40, (_controller.Controls.x + 1)/2), 
+                90 + Mathf.LerpAngle(-20, 20, (_controller.Controls.x + 1)/2), 
                 0
             );
         }
@@ -42,11 +43,17 @@ namespace Car
             hit = _test();
             if (hit.collider == null) return;
             _suspension(hit.distance);
-            _steering(transform.right);
+            _steering(_steeringTransform());
             if (driveWheel && !_controller.IsBraking && _controller.Controls.y != 0)
                 _acceleration(_controller.Controls.y);
             if (brakeWheel && _controller.IsBraking)
                 _brake(1f);
+        }
+
+        private Vector3 _steeringTransform()
+        {
+            var direction = Vector3.Dot(transform.right, _carRigidbody.GetPointVelocity(transform.position));
+            return direction > 0 ? -transform.right : transform.right;
         }
 
         private RaycastHit _test()
@@ -106,6 +113,7 @@ namespace Car
             if (normalizedSpeed >= 1) return;
             
             float torque = _configuration.accelerationCurve.Evaluate(normalizedSpeed) * magnitude * _configuration.torqueMultiplier;
+            Debug.DrawRay(tyrePosition, accelerationDirection * torque, Color.yellow);
             _carRigidbody.AddForceAtPosition(accelerationDirection * torque, tyrePosition);
         }
 
