@@ -82,16 +82,16 @@ namespace Car
             var tyreTransform = transform;
             Vector3 tyreWorldVelocity = _carRigidbody.GetPointVelocity(tyreTransform.position);
             float steeringVelocity = Vector3.Dot(steeringDirection, tyreWorldVelocity);
-            Vector3 lateralVelocity = steeringDirection * steeringVelocity;
-            
-            Debug.DrawRay(tyreTransform.position, lateralVelocity, Color.blue);
             
             float desiredVelocityChange = -steeringVelocity * 
-                                          (frontWheel ? _configuration.frontTyreGripCurve : _configuration.rearTyreGripCurve).Evaluate(_normalizedSpeed() * steeringVelocity);
+                                          (frontWheel ? _configuration.frontTyreGripCurve : _configuration.rearTyreGripCurve)
+                                          .Evaluate(steeringVelocity);
             float desiredAccelerationChange = desiredVelocityChange / Time.fixedDeltaTime;
             var appliedForce = desiredAccelerationChange * _configuration.tyreMass * steeringDirection;
             
-            Debug.DrawRay(tyreTransform.position, lateralVelocity, Color.red);
+            Debug.DrawRay(tyreTransform.position, desiredVelocityChange * steeringDirection, Color.red);
+            Debug.DrawRay(tyreTransform.position, steeringDirection * steeringVelocity, Color.blue);
+            Debug.DrawRay(tyreTransform.position, tyreWorldVelocity, frontWheel ? Color.green : Color.magenta);
             
             _carRigidbody.AddForceAtPosition(appliedForce, tyreTransform.position);
         }
