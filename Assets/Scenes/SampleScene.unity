@@ -167,7 +167,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb319fcd6538942a4ae61b1ac42c646e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  driveWheel: 0
+  driveWheel: 1
   brakeWheel: 1
   steerWheel: 0
   frontWheel: 0
