@@ -17,6 +17,6 @@ namespace Car
 
         public AnimationCurve accelerationCurve;
         public float maxForwardVelocity;
-        public float maxBackwardVelocity;
+        public float torqueMultiplier;
     }
 }

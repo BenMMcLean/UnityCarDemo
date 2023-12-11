@@ -102,11 +102,11 @@ namespace Car
             Vector3 accelerationDirection = transform.forward;
 
             float normalizedSpeed = _normalizedSpeed();
+            print($"Speed = {normalizedSpeed}, {_carRigidbody.velocity.magnitude}");
             if (normalizedSpeed >= 1) return;
             
-            float torque = _configuration.accelerationCurve.Evaluate(normalizedSpeed) * magnitude * 10;
-            // print($"torque = {torque}, {accelerationDirection * torque}");
-            _carRigidbody.AddForceAtPosition(accelerationDirection * torque, tyrePosition, ForceMode.Acceleration);
+            float torque = _configuration.accelerationCurve.Evaluate(normalizedSpeed) * magnitude * _configuration.torqueMultiplier;
+            _carRigidbody.AddForceAtPosition(accelerationDirection * torque, tyrePosition);
         }
 
         private float _normalizedSpeed()
