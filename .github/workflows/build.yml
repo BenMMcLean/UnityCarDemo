@@ -50,7 +50,7 @@ jobs:
           - os: ubuntu-latest
           - os: macos-latest
             platform: StandaloneMacOS
-      runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     needs:
       - version
     steps:
