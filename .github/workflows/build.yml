@@ -44,6 +44,7 @@ jobs:
       - run: echo ${{steps.run_number.outputs.versionCode}}
   build:
     strategy:
+      fail-fast: false
       matrix:
         platform: [WebGL,StandaloneLinux64,StandaloneWindows,StandaloneMacOS]
         include:
@@ -51,8 +52,6 @@ jobs:
           - os: macos-latest
             platform: StandaloneMacOS
     runs-on: ${{ matrix.os }}
-    needs:
-      - version
     steps:
       - uses: actions/checkout@v4
         with:
