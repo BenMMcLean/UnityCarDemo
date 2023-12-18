@@ -46,11 +46,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [WebGL,StandaloneLinux64,StandaloneWindows,StandaloneMacOS]
+        platform: [WebGL,StandaloneLinux64,StandaloneWindows,StandaloneOSX]
         include:
           - os: ubuntu-latest
           - os: macos-latest
-            platform: StandaloneMacOS
+            platform: StandaloneOSX
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
