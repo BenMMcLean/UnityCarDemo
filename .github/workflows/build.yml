@@ -1,0 +1,77 @@
+name: Build
+
+on:
+  push:
+    branches: [ "main", "develop", "release/**" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.gitversion.outputs.semVer }}
+      versionCode: ${{ steps.run_number.outputs.versionCode }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v0.9.6
+        with:
+          versionSpec: '5.x'
+      - name: Use GitVersion
+        id: gitversion # step id used as reference for output values
+        uses: gittools/actions/gitversion/execute@v0.9.6
+        with:
+          useConfigFile: true
+          configFilePath: ./gitversion.yml
+      - name: Display SemVer
+        run: |
+          echo "SemVer: ${{ steps.gitversion.outputs.semVer }}"
+      - name: run number with offset
+        id: run_number
+        env:
+          NUM: ${{ github.run_number }}
+        run: |
+          current_run_number=${{ github.run_number }}
+          new_number=$((current_run_number+600))
+          echo "versionCode=${new_number}" >> $GITHUB_OUTPUT
+      - run: echo ${{steps.run_number.outputs.versionCode}}
+  build:
+    strategy:
+      matrix:
+        platform: [WebGL,StandaloneLinux64,StandaloneWindows,StandaloneMacOS]
+        include:
+          - os: ubuntu-latest
+          - os: macos-latest
+            platform: StandaloneMacOS
+      runs-on: ${{ matrix.os }}
+    needs:
+      - version
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-
+      - name: Build project
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: ${{ matrix.platform }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Build${{ matrix.platform }}
+          path: build
