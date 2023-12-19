@@ -108,18 +108,20 @@ jobs:
           release_name: Release ${{ needs.version.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
-      - name: upload artifact
+      - name: Create macox zip
+        run: zip -r macos-${{ needs.version.outputs.version }}.zip ./StandaloneOSX
+      - name: upload OSX artifact
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./StandaloneOSX/StandaloneOSX.app
-          asset_name: StandaloneOSX.app
-          asset_content_type: application/octet-stream
+          asset_path: macos-${{ needs.version.outputs.version }}.zip
+          asset_name: macos-${{ needs.version.outputs.version }}.zip
+          asset_content_type: application/x-zip
       - name: Create windows zip
         run: zip -r windows-${{ needs.version.outputs.version }}.zip ./StandaloneWindows64
-      - name: upload artifact
+      - name: upload Windows artifact
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -130,7 +132,7 @@ jobs:
           asset_content_type: application/x-zip
       - name: Create linux zip
         run: zip -r linux-${{ needs.version.outputs.version }}.zip ./StandaloneLinux64
-      - name: upload artifact
+      - name: upload Linux artifact
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -141,7 +143,7 @@ jobs:
           asset_content_type: application/x-zip
       - name: Create WebGL zip
         run: zip -r webgl-${{ needs.version.outputs.version }}.zip ./WebGL
-      - name: upload artifact
+      - name: upload WebGL artifact
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
