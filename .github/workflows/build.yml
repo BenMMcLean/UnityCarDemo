@@ -87,11 +87,11 @@ jobs:
 #          path: ./
       - uses: actions/download-artifact@master
         with:
-          name: BuildStandaloneLinux64
+          name: BuildStandaloneLinux64 
           path: ./
       - uses: actions/download-artifact@master
         with:
-          name: BuildStandaloneWindows64
+          name: BuildStandaloneWindows64 
           path: ./
 #      - uses: actions/download-artifact@master
 #        with:
