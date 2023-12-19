@@ -46,7 +46,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [WebGL,StandaloneLinux64,StandaloneWindows,StandaloneOSX]
+        platform: [WebGL,StandaloneLinux64,StandaloneWindows64,StandaloneOSX]
         include:
           - os: ubuntu-latest
           - os: macos-latest
@@ -74,3 +74,79 @@ jobs:
         with:
           name: Build${{ matrix.platform }}
           path: build
+  publish:
+    needs:
+      - version
+      - build
+    if: ${{ github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/release') || github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@master
+        with:
+          name: BuildWebGL
+          path: ./
+      - uses: actions/download-artifact@master
+        with:
+          name: BuildStandaloneLinux64
+          path: ./
+      - uses: actions/download-artifact@master
+        with:
+          name: BuildStandaloneWindows64
+          path: ./
+      - uses: actions/download-artifact@master
+        with:
+          name: BuildStandaloneOSX
+          path: ./
+      - run: ls
+      - name: release
+        uses: actions/create-release@v1
+        id: create_release
+        with:
+          draft: false
+          prerelease: ${{ github.ref != 'refs/heads/main' }}
+          tag_name: pre/v${{ needs.version.outputs.version }}
+          release_name: Prerelease ${{ needs.version.outputs.version }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: upload artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./StandaloneOSX/StandaloneOSX.app
+          asset_name: StandaloneOSX.app
+          asset_content_type: application/octet-stream
+      - name: Create windows zip
+        run: zip -r windows-${{ needs.version.outputs.version }}.zip ./StandaloneWindows64
+      - name: upload artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: windows-${{ needs.version.outputs.version }}.zip
+          asset_name: windows-${{ needs.version.outputs.version }}.zip
+          asset_content_type: application/x-zip
+      - name: Create linux zip
+        run: zip -r linux-${{ needs.version.outputs.version }}.zip ./StandaloneLinux64
+      - name: upload artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: linux-${{ needs.version.outputs.version }}.zip
+          asset_name: linux-${{ needs.version.outputs.version }}.zip
+          asset_content_type: application/x-zip
+      - name: Create WebGL zip
+        run: zip -r webgl-${{ needs.version.outputs.version }}.zip ./WebGL
+      - name: upload artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: webgl-${{ needs.version.outputs.version }}.zip
+          asset_name: webgl-${{ needs.version.outputs.version }}.zip
+          asset_content_type: application/x-zip
