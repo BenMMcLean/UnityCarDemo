@@ -85,11 +85,11 @@ jobs:
 #        with:
 #          name: BuildWebGL
 #          path: ./
-      - uses: actions/download-artifact@master
+      - uses: actions/download-artifact@v3
         with:
-          name: BuildStandaloneLinux64 
+          name: BuildStandaloneLinux64
           path: ./
-      - uses: actions/download-artifact@master
+      - uses: actions/download-artifact@v3
         with:
           name: BuildStandaloneWindows64 
           path: ./
